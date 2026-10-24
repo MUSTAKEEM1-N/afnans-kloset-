@@ -41,20 +41,14 @@
 <div class="cartback" id="cartBack" onclick="if(event.target===this)toggleCart(false)"><div class="cart"><div class="carthead"><h2>Your Shopping Bag ♡</h2><button class="round" style="color:#24151d;border-color:#e5c5d1" onclick="toggleCart(false)">×</button></div><div id="cartItems"></div><div class="carttotal"><span>Total</span><span id="cartTotal">GH₵0.00</span></div><p class="cartnote">Choose who you would like to send your order to on WhatsApp.</p><button class="btn" style="width:100%;margin-bottom:9px" onclick="checkoutWhatsApp('Afeenat')">Order with Afeenat</button><button class="btn btn-dark" style="width:100%" onclick="checkoutWhatsApp('Sheafnat')">Order with Sheafnat</button></div></div>
 <div id="toast" class="toast" role="status"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+const SUPABASE_URL='https://zzhgvqfoafroqexxmcuu.supabase.co';
+const SUPABASE_KEY='sb_publishable_sE_F6lWkTK0N2fI5W7TNkQ_594Mf_dm';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-/* LOCAL DEMO ONLY. Do not use this client-side file as secure authentication or shared production storage. */
-const STORAGE_KEY="afnansKlosetProductsDemo_v1";
-const defaultProducts=[
-{id:1,name:"Elegant Necklace",category:"Jewelry & Accessories",price:120,stock:"In Stock",desc:"A delicate touch of everyday sparkle.",image:"https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=700&q=85"},
-{id:2,name:"Chic Everyday Handbag",category:"Girly Essentials",price:180,stock:"Available",desc:"A pretty companion for your daily looks.",image:"https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=700&q=85"},
-{id:3,name:"Soft Pink Outfit",category:"Clothes & Fashion",price:220,stock:"In Stock",desc:"A sweet look for your next outing.",image:"https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=700&q=85"},
-{id:4,name:"Pretty Room Décor",category:"Room Décor",price:150,stock:"Out of Stock",desc:"Little details for a cosy, lovely space.",image:"https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=700&q=85"},
-{id:5,name:"Jewelry Gift Set",category:"Jewelry & Accessories",price:100,stock:"Available",desc:"A thoughtful gift for someone special.",image:"https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=700&q=85"},
-{id:6,name:"Classic Sunglasses",category:"Girly Essentials",price:85,stock:"In Stock",desc:"A chic finishing touch to your outfit.",image:"https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=700&q=85"},
-{id:7,name:"Fashion Dress",category:"Clothes & Fashion",price:200,stock:"Available",desc:"An elegant style for memorable moments.",image:"https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=700&q=85"},
-{id:8,name:"Blush Home Accent",category:"Room Décor",price:95,stock:"In Stock",desc:"A lovely accent to refresh your room.",image:"https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=700&q=85"}];
-let products=loadProducts(),activeCategory="All",activeStock="All",cart=[];
+let products=[],activeCategory="All",activeStock="All",cart=[];
+async function loadProducts(){try{const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});if(error)throw error;products=(data||[]).map(p=>({id:p.id,name:p.name,category:p.category||"Girly Essentials",price:Number(p.price||0),stock:p.stock||"In Stock",desc:p.description||"",image:p.image_url||""}));renderProducts();}catch(e){console.error(e);document.getElementById("products").innerHTML='<div class="empty">Products are temporarily unavailable. Please try again soon. ♡</div>';}}
 const WHATSAPP_CONTACTS={Afeenat:"233559535545",Sheafnat:"233558082661"}; // Ghana numbers converted to international format.
 function loadProducts(){try{const s=localStorage.getItem(STORAGE_KEY);if(s){const p=JSON.parse(s);if(Array.isArray(p))return p;}}catch(e){}return defaultProducts.map(p=>({...p}));}
 function saveProducts(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(products));}catch(e){showToast("Could not save in this browser. Export a backup.");}}
@@ -73,7 +67,7 @@ function escapeAttr(s){return escapeHtml(s).replace(/`/g,"&#96;");}
 let toastTimer;function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.style.display="none",3300);}
 function spawnParticle(){const p=document.createElement("span");p.className="particle";p.textContent=["✦","♡","✧","•"][Math.floor(Math.random()*4)];p.style.left=Math.random()*100+"vw";p.style.fontSize=(10+Math.random()*13)+"px";p.style.setProperty("--drift",(Math.random()*140-70)+"px");p.style.animationDuration=(7+Math.random()*8)+"s";document.body.appendChild(p);setTimeout(()=>p.remove(),16000);}
 
-document.getElementById("year").textContent=new Date().getFullYear();renderProducts();updateCart();for(let i=0;i<12;i++)setTimeout(spawnParticle,i*250);setInterval(spawnParticle,850);
+document.getElementById("year").textContent=new Date().getFullYear();loadProducts();updateCart();for(let i=0;i<12;i++)setTimeout(spawnParticle,i*250);setInterval(spawnParticle,850);setInterval(loadProducts,30000);
 
 </script>
 </body>
