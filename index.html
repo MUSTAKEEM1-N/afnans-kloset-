@@ -50,7 +50,7 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let products=[],activeCategory="All",activeStock="All",cart=[];
 async function loadProducts(){try{const {data,error}=await db.from("products").select("*").order("created_at",{ascending:false});if(error)throw error;products=(data||[]).map(p=>({id:p.id,name:p.name,category:p.category||"Girly Essentials",price:Number(p.price||0),stock:p.stock||"In Stock",desc:p.description||"",image:p.image_url||""}));renderProducts();}catch(e){console.error(e);document.getElementById("products").innerHTML='<div class="empty">Products are temporarily unavailable. Please try again soon. ♡</div>';}}
 const WHATSAPP_CONTACTS={Afeenat:"233559535545",Sheafnat:"233558082661"}; // Ghana numbers converted to international format.
-function loadProducts(){try{const s=localStorage.getItem(STORAGE_KEY);if(s){const p=JSON.parse(s);if(Array.isArray(p))return p;}}catch(e){}return defaultProducts.map(p=>({...p}));}
+/* Removed old localStorage loader: products must come from Supabase. */
 function saveProducts(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(products));}catch(e){showToast("Could not save in this browser. Export a backup.");}}
 const money=n=>"GH₵"+Number(n||0).toFixed(2);
 function stockClass(s){return s==="In Stock"?"stock-in":s==="Available"?"stock-available":"stock-out";}
